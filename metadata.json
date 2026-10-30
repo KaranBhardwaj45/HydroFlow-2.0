@@ -1,0 +1,6 @@
+{
+  "name": "HYDROFLOW",
+  "description": "Smart IoT-Based Hydroponic Farming System with Automated Nutrient Control and Plant Health Monitoring",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

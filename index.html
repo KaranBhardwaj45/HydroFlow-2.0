@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HYDROFLOW - Smart IoT Hydroponics Management System</title>
+  <meta name="description" content="Smart IoT-Based Hydroponic Farming System with Automated Nutrient Control and Plant Health Monitoring" />
+  <meta property="og:title" content="HYDROFLOW - Smart IoT Hydroponics Management System" />
+  <meta property="og:description" content="Smart IoT-Based Hydroponic Farming System with Automated Nutrient Control and Plant Health Monitoring" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- Icons (Lucide) -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- PAGE 1: LOGIN (Rendered when unauthenticated) -->
+  <div id="page-login" class="login-layout" style="display: none;">
+    <div class="login-hero">
+      <div class="login-hero-bg" style="background-image: url('/static/images/hero.jpg');"></div>
+      
+      <div class="login-hero-content">
+        <div class="login-hero-brand">
+          <div class="brand-logo-icon">
+            <i data-lucide="sprout" style="width:20px;height:20px;"></i>
+          </div>
+          <h1>HYDROFLOW</h1>
+        </div>
+
+        <div class="login-hero-tagline">
+          <h2>Smart Hydroponics</h2>
+          <p>Automated. Reliable. Connected. Real-time monitoring, automated nutrient control and plant health observation.</p>
+        </div>
+      </div>
+
+      <div class="login-features">
+        <div class="feature-item">
+          <div class="feature-icon-box"><i data-lucide="leaf" style="width:16px;height:16px;"></i></div>
+          <span>Healthy Plants</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon-box"><i data-lucide="cpu" style="width:16px;height:16px;"></i></div>
+          <span>Smart Automation</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon-box"><i data-lucide="wifi" style="width:16px;height:16px;"></i></div>
+          <span>Always Connected</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="login-form-container">
+      <div class="login-card">
+        <div class="login-card-header">
+          <h2>Welcome back</h2>
+          <p>Sign in to your account</p>
+        </div>
+
+        <form id="login-form">
+          <div class="form-group">
+            <label class="form-label" for="login-email">Email</label>
+            <div class="input-wrapper">
+              <input type="email" id="login-email" class="form-input" value="demo@hydroflow.io" placeholder="you@example.com" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+              <label class="form-label" for="login-password">Password</label>
+              <a href="#" style="font-size:12px;color:var(--primary-green);text-decoration:none;" onclick="alert('Demo account credentials:\nEmail: demo@hydroflow.io\nPassword: hydroflow123'); return false;">Forgot Password?</a>
+            </div>
+            <div class="input-wrapper">
+              <input type="password" id="login-password" class="form-input" value="hydroflow123" placeholder="Enter your password" required />
+              <button type="button" class="toggle-pwd-btn" id="toggle-password" title="Show password">
+                <i data-lucide="eye" style="width:16px;height:16px;"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group" style="display:flex;align-items:center;gap:8px;margin-bottom:24px;">
+            <input type="checkbox" id="remember-me" checked />
+            <label for="remember-me" style="font-size:13px;color:var(--text-secondary);cursor:pointer;">Remember me</label>
+          </div>
+
+          <button type="submit" class="btn-primary" id="btn-login-submit">
+            <span>Sign In</span>
+            <i data-lucide="arrow-right" style="width:16px;height:16px;"></i>
+          </button>
+        </form>
+
+        <div style="margin-top: 24px; text-align: center; font-size: 11.5px; color: var(--text-muted);">
+          Smart IoT-Based Hydroponic Farming System
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- MAIN APPLICATION SHELL (Pages 2 through 9) -->
+  <div id="app-container" style="display: none;">
+    <!-- Sidebar -->
+    <aside class="app-sidebar" id="app-sidebar">
+      <div class="brand-header">
+        <div class="brand-logo-icon">
+          <i data-lucide="sprout" style="width:18px;height:18px;"></i>
+        </div>
+        <div class="brand-title">HYDROFLOW</div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-link active" data-page="dashboard">
+          <i data-lucide="layout-dashboard" style="width:18px;height:18px;"></i>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-link" data-page="live-monitoring">
+          <i data-lucide="activity" style="width:18px;height:18px;"></i>
+          <span>Live Monitoring</span>
+        </button>
+        <button class="nav-link" data-page="analytics">
+          <i data-lucide="line-chart" style="width:18px;height:18px;"></i>
+          <span>Analytics</span>
+        </button>
+        <button class="nav-link" data-page="plant-health">
+          <i data-lucide="heart" style="width:18px;height:18px;"></i>
+          <span>Plant Health</span>
+        </button>
+        <button class="nav-link" data-page="alerts">
+          <i data-lucide="alert-triangle" style="width:18px;height:18px;"></i>
+          <span>Alerts</span>
+          <span id="sidebar-alert-badge" class="status-pill warning" style="display:none;margin-left:auto;padding:1px 6px;font-size:10px;">0</span>
+        </button>
+        <button class="nav-link" data-page="automation">
+          <i data-lucide="sliders" style="width:18px;height:18px;"></i>
+          <span>Automation</span>
+        </button>
+        <button class="nav-link" data-page="device">
+          <i data-lucide="cpu" style="width:18px;height:18px;"></i>
+          <span>Device & Connectivity</span>
+        </button>
+        <button class="nav-link" data-page="logs">
+          <i data-lucide="file-text" style="width:18px;height:18px;"></i>
+          <span>System Logs</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-badge">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="user-avatar-circle" id="sidebar-user-initials">HL</div>
+            <div style="overflow:hidden;">
+              <div id="sidebar-user-name" style="font-size:12.5px;font-weight:600;color:white;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;">Lead Operator</div>
+              <div id="sidebar-user-role" style="font-size:11px;color:var(--text-muted);">Admin</div>
+            </div>
+          </div>
+          <button id="btn-logout" title="Sign Out" style="background:none;border:none;color:var(--sidebar-text);cursor:pointer;padding:4px;">
+            <i data-lucide="log-out" style="width:16px;height:16px;"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Viewport -->
+    <main class="app-main">
+      <!-- Top Header -->
+      <header class="top-header">
+        <div class="header-breadcrumbs">
+          <button id="mobile-menu-btn" style="display:none;background:none;border:none;cursor:pointer;margin-right:8px;">
+            <i data-lucide="menu" style="width:20px;height:20px;"></i>
+          </button>
+          <div class="header-title" id="page-header-title">Hydroponic System</div>
+          <div class="header-subtitle" id="page-header-subtitle">/ Device #001</div>
+        </div>
+
+        <div class="header-actions">
+          <button id="header-mode-badge" class="mode-badge real" title="Click to toggle Real Hardware / Demo Mode" style="border:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+            <i data-lucide="cpu" style="width:12px;height:12px;"></i>
+            <span id="header-mode-text">REAL HARDWARE</span>
+          </button>
+          
+          <div class="status-pill online" id="header-online-status">
+            <span class="status-indicator-dot"></span>
+            <span id="header-online-text">Online</span>
+          </div>
+
+          <div class="last-updated-text" id="header-last-updated">
+            Last updated: <span id="header-timestamp-val" class="tabular-nums">--</span>
+          </div>
+
+          <button id="header-refresh-btn" title="Refresh Live Data" style="background:none;border:none;cursor:pointer;color:var(--text-secondary);padding:6px;">
+            <i data-lucide="refresh-cw" style="width:17px;height:17px;"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- VIEW: PAGE 2 - MAIN DASHBOARD -->
+      <section id="view-dashboard" class="content-body view-page">
+        <!-- 6 Metrics Cards Grid (Verified Hardware Configuration) -->
+        <div class="metrics-grid-6">
+          <!-- Temperature (DHT11, GPIO 4) -->
+          <div class="metric-card">
+            <div class="metric-top">
+              <span class="metric-icon-small"><i data-lucide="thermometer" style="width:16px;height:16px;"></i></span>
+              <span>Temperature (DHT11)</span>
+            </div>
+            <div class="metric-value-row">
+              <span class="metric-value" id="card-temp-val">--</span>
+              <span class="metric-unit">°C</span>
+            </div>
+            <div class="metric-target">Optimal: 18 - 32 °C &bull; GPIO 4</div>
+            <div><span class="status-pill success" id="card-temp-badge">Normal</span></div>
+          </div>
+
+          <!-- Humidity (DHT11, GPIO 4) -->
+          <div class="metric-card">
+            <div class="metric-top">
+              <span class="metric-icon-small"><i data-lucide="cloud" style="width:16px;height:16px;"></i></span>
+              <span>Humidity (DHT11)</span>
+            </div>
+            <div class="metric-value-row">
+              <span class="metric-value" id="card-hum-val">--</span>
+              <span class="metric-unit">%</span>
+            </div>
+            <div class="metric-target">Optimal: 40 - 75 % &bull; GPIO 4</div>
+            <div><span class="status-pill success" id="card-hum-badge">Normal</span></div>
+          </div>
+
+          <!-- Approximate pH (GPIO 34) -->
+          <div class="metric-card">
+            <div class="metric-top">
+              <span class="metric-icon-small"><i data-lucide="droplet" style="width:16px;height:16px;"></i></span>
+              <span>pH (Approximate)</span>
+            </div>
+            <div class="metric-value-row">
+              <span class="metric-value" id="card-ph-val">--</span>
+            </div>
+            <div class="metric-target" title="Linear conversion: 7.0 + (2.5 - V)*3.0">GPIO 34 &bull; Uncalibrated ADC</div>
+            <div><span class="status-pill warning" id="card-ph-badge">Approximate (Uncalibrated)</span></div>
+          </div>
+
+          <!-- Soil Moisture (GPIO 35) -->
+          <div class="metric-card">
+            <div class="metric-top">
+              <span class="metric-icon-small"><i data-lucide="sprout" style="width:16px;height:16px;"></i></span>
+              <span>Soil Moisture</span>
+            </div>
+            <div class="metric-value-row">
+              <span class="metric-value" id="card-soil-val">--</span>
+              <span class="metric-unit">%</span>
+            </div>
+            <div class="metric-target">Mapped 4095-0 &bull; GPIO 35</div>
+            <div><span class="status-pill success" id="card-soil-badge">Active</span></div>
+          </div>
+
+          <!-- MQ135 Air Quality (GPIO 32) -->
+          <div class="metric-card">
+            <div class="metric-top">
+              <span class="metric-icon-small"><i data-lucide="wind" style="width:16px;height:16px;"></i></span>
+              <span>Air Quality (MQ135)</span>
+            </div>
+            <div class="metric-value-row">
+              <span class="metric-value" id="card-air-adc">--</span>
+              <span class="metric-unit">ADC</span>
+            </div>
+            <div class="metric-target" id="card-air-label">GPIO 32 &bull; Raw Gas ADC</div>
+            <div><span class="status-pill success" id="card-air-badge">Good</span></div>
+          </div>
+
+          <!-- EC / TDS & Water Level (Planned Hardware) -->
+          <div class="metric-card" style="background:#F9FAFB;border-style:dashed;">
+            <div class="metric-top">
+              <span class="metric-icon-small"><i data-lucide="info" style="width:16px;height:16px;"></i></span>
+              <span>EC / Water Level</span>
+            </div>
+            <div class="metric-value-row">
+              <span class="metric-value" style="font-size:18px;color:var(--text-muted);">Unavailable</span>
+            </div>
+            <div class="metric-target">Planned Sensors &bull; Not Fitted</div>
+            <div><span class="status-pill offline">Not Configured</span></div>
+          </div>
+        </div>
+
+        <!-- Middle Row: 24h Trend Chart & System Health -->
+        <div class="dashboard-middle-row">
+          <div class="card chart-card">
+            <div class="card-header">
+              <div class="card-title">Physical Hardware Telemetry (ThingSpeak Live Feeds)</div>
+              <div style="display:flex;gap:14px;font-size:12px;color:var(--text-secondary);">
+                <span style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:3px;background:#EF4444;display:inline-block;"></span> Temp (°C)</span>
+                <span style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:3px;background:#06B6D4;display:inline-block;"></span> Hum (%)</span>
+                <span style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:3px;background:#16A765;display:inline-block;"></span> Approx pH</span>
+                <span style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:3px;background:#EAB308;display:inline-block;"></span> Soil (%)</span>
+              </div>
+            </div>
+            <div style="position:relative;height:240px;width:100%;">
+              <canvas id="dashboard-trend-chart"></canvas>
+            </div>
+          </div>
+
+          <!-- System Health Card -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Verified Hardware Status</div>
+            </div>
+            <div class="system-health-list">
+              <div class="health-item">
+                <span class="health-item-label">ESP32 (ThingSpeak)</span>
+                <span class="health-status-tag" style="color:var(--color-success);"><span class="status-indicator-dot"></span> Operational</span>
+              </div>
+              <div class="health-item">
+                <span class="health-item-label">DHT11 (GPIO 4)</span>
+                <span class="health-status-tag" style="color:var(--color-success);"><span class="status-indicator-dot"></span> Operational</span>
+              </div>
+              <div class="health-item">
+                <span class="health-item-label">pH Sensor (GPIO 34)</span>
+                <span class="health-status-tag" style="color:var(--color-warning);"><span class="status-indicator-dot"></span> Approx (Uncalibrated)</span>
+              </div>
+              <div class="health-item">
+                <span class="health-item-label">Soil Moisture (GPIO 35)</span>
+                <span class="health-status-tag" style="color:var(--color-success);"><span class="status-indicator-dot"></span> Operational</span>
+              </div>
+              <div class="health-item">
+                <span class="health-item-label">MQ135 Gas (GPIO 32)</span>
+                <span class="health-status-tag" style="color:var(--color-success);"><span class="status-indicator-dot"></span> Operational</span>
+              </div>
+              <div class="health-item">
+                <span class="health-item-label">OLED (I2C 0x3C)</span>
+                <span class="health-status-tag" style="color:var(--color-success);"><span class="status-indicator-dot"></span> Operational</span>
+              </div>
+              <div class="health-item">
+                <span class="health-item-label">Pump D1 (GPIO 25)</span>
+                <span class="health-status-tag" style="color:var(--color-info);"><span class="status-indicator-dot"></span> Commanded ON</span>
+              </div>
+              <div class="health-item">
+                <span class="health-item-label">Chemical Dosing</span>
+                <span class="health-status-tag" style="color:var(--color-critical);"><span class="status-indicator-dot"></span> Safety Locked</span>
+              </div>
+              <div class="health-item">
+                <span class="health-item-label">EC / Level / Camera</span>
+                <span class="health-status-tag" style="color:var(--text-muted);"><span class="status-indicator-dot"></span> Not Configured</span>
+              </div>
+              <div class="health-item">
+                <span class="health-item-label">Cloud (ThingSpeak 3143605)</span>
+                <span class="health-status-tag" id="health-cloud-tag" style="color:var(--color-success);"><span class="status-indicator-dot"></span> Connected</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Row: Recent Events -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Recent Events & Telemetry Ingestion</div>
+            <button class="nav-link" data-page="logs" style="width:auto;padding:4px 8px;font-size:12px;color:var(--primary-green);">View All</button>
+          </div>
+          <table class="recent-events-table">
+            <tbody id="dashboard-recent-events-body">
+              <!-- Dynamically populated from SQLite -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+
+      <!-- VIEW: PAGE 3 - LIVE MONITORING -->
+      <section id="view-live-monitoring" class="content-body view-page" style="display: none;">
+        <div class="live-grid">
+          <!-- Left Column: Sensor readings & Real Hardware Status -->
+          <div>
+            <div class="card" style="margin-bottom:24px;">
+              <div class="card-header">
+                <div class="card-title">Live Sensor Feeds (ESP32 Verified Pins)</div>
+                <span class="status-pill online"><span class="status-indicator-dot"></span> ThingSpeak Live</span>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div class="metric-card">
+                  <div class="metric-top"><i data-lucide="thermometer" style="width:16px;height:16px;"></i> Temperature</div>
+                  <div class="metric-value-row"><span class="metric-value" id="live-temp-val">--</span> <span class="metric-unit">°C</span></div>
+                  <div class="metric-target">DHT11 &bull; GPIO 4</div>
+                  <div><span class="status-pill success">Operational</span></div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-top"><i data-lucide="cloud" style="width:16px;height:16px;"></i> Humidity</div>
+                  <div class="metric-value-row"><span class="metric-value" id="live-hum-val">--</span> <span class="metric-unit">%</span></div>
+                  <div class="metric-target">DHT11 &bull; GPIO 4</div>
+                  <div><span class="status-pill success">Operational</span></div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-top"><i data-lucide="droplet" style="width:16px;height:16px;"></i> Approximate pH</div>
+                  <div class="metric-value-row"><span class="metric-value" id="live-ph-val">--</span></div>
+                  <div class="metric-target">GPIO 34 &bull; Linear Conversion</div>
+                  <div><span class="status-pill warning">Uncalibrated</span></div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-top"><i data-lucide="sprout" style="width:16px;height:16px;"></i> Soil Moisture</div>
+                  <div class="metric-value-row"><span class="metric-value" id="live-soil-val">--</span> <span class="metric-unit">%</span></div>
+                  <div class="metric-target">GPIO 35 &bull; Mapped 4095-0</div>
+                  <div><span class="status-pill success">Operational</span></div>
+                </div>
+              </div>
+
+              <!-- Gas Sensor & Planned Hardware Notice -->
+              <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div class="metric-card">
+                  <div class="metric-top"><i data-lucide="wind" style="width:16px;height:16px;"></i> Air Quality (MQ135)</div>
+                  <div class="metric-value-row"><span class="metric-value" id="live-mq135-val">--</span> <span class="metric-unit">ADC</span></div>
+                  <div class="metric-target">GPIO 32 &bull; Analog ADC</div>
+                  <div><span class="status-pill success" id="live-mq135-badge">Good</span></div>
+                </div>
+                <div class="metric-card" style="background:#F9FAFB;border-style:dashed;">
+                  <div class="metric-top"><i data-lucide="info" style="width:16px;height:16px;"></i> EC / TDS & Water Level</div>
+                  <div class="metric-value-row"><span class="metric-value" style="font-size:16px;color:var(--text-muted);">Not Configured</span></div>
+                  <div class="metric-target">Planned Sensors &bull; Not Fitted</div>
+                  <div><span class="status-pill offline">Hardware Unavailable</span></div>
+                </div>
+              </div>
+
+              <!-- Hardware Notice Callout -->
+              <div style="margin-top:20px;background:#F0FDF4;border:1px solid #BBF7D0;padding:12px 16px;border-radius:var(--radius-sm);font-size:12.5px;color:#166534;display:flex;align-items:center;gap:10px;">
+                <i data-lucide="shield-check" style="width:18px;height:18px;flex-shrink:0;"></i>
+                <span>Sensors match verified firmware: DHT11 (GPIO 4), pH (GPIO 34), Soil (GPIO 35), MQ135 (GPIO 32). Ingested from ThingSpeak Channel 3143605.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Actuator Status -->
+          <div>
+            <div class="card" style="margin-bottom:24px;">
+              <div class="card-header">
+                <div class="card-title">Actuator & Relay States</div>
+                <span class="status-pill info">Interlocks Active</span>
+              </div>
+              <div class="actuator-list">
+                <div class="actuator-row">
+                  <div>
+                    <div class="actuator-name"><i data-lucide="waves" style="width:16px;height:16px;color:var(--primary-green);"></i> Water Pump (Relay D1)</div>
+                    <div style="font-size:11px;color:var(--text-muted);">GPIO 25 &bull; Active-HIGH &bull; Physical flow verification pending</div>
+                  </div>
+                  <span class="status-pill online" id="act-water">COMMANDED ON</span>
+                </div>
+                <div class="actuator-row">
+                  <div>
+                    <div class="actuator-name"><i data-lucide="toggle-left" style="width:16px;height:16px;color:var(--text-secondary);"></i> Relay D2</div>
+                    <div style="font-size:11px;color:var(--text-muted);">GPIO 26 &bull; Reserved</div>
+                  </div>
+                  <span class="status-pill offline" id="act-relay-d2">RESERVED / OFF</span>
+                </div>
+                <div class="actuator-row">
+                  <div>
+                    <div class="actuator-name"><i data-lucide="toggle-left" style="width:16px;height:16px;color:var(--text-secondary);"></i> Relay D3</div>
+                    <div style="font-size:11px;color:var(--text-muted);">GPIO 27 &bull; Reserved</div>
+                  </div>
+                  <span class="status-pill offline" id="act-relay-d3">RESERVED / OFF</span>
+                </div>
+                <div class="actuator-row">
+                  <div>
+                    <div class="actuator-name"><i data-lucide="lock" style="width:16px;height:16px;color:var(--color-critical);"></i> Nutrient Dosing Pump</div>
+                    <div style="font-size:11px;color:var(--text-muted);">Safety Locked: Calibration required</div>
+                  </div>
+                  <span class="status-pill critical" id="act-nutrient">LOCKED</span>
+                </div>
+                <div class="actuator-row">
+                  <div>
+                    <div class="actuator-name"><i data-lucide="lock" style="width:16px;height:16px;color:var(--color-critical);"></i> pH Chemical Pumps</div>
+                    <div style="font-size:11px;color:var(--text-muted);">Safety Locked: Interlocks active</div>
+                  </div>
+                  <span class="status-pill critical" id="act-ph-dosing">LOCKED</span>
+                </div>
+                <div class="actuator-row">
+                  <div>
+                    <div class="actuator-name"><i data-lucide="camera" style="width:16px;height:16px;color:var(--text-muted);"></i> Camera Module</div>
+                    <div style="font-size:11px;color:var(--text-muted);">Planned component &bull; Not fitted</div>
+                  </div>
+                  <span class="status-pill offline" id="act-camera">UNAVAILABLE</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Current Time card matching screenshot -->
+            <div class="card" style="background:#FFFFFF;">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div style="background:var(--primary-green-light);color:var(--primary-green);padding:10px;border-radius:var(--radius-md);">
+                  <i data-lucide="calendar" style="width:24px;height:24px;"></i>
+                </div>
+                <div>
+                  <div style="font-size:12px;color:var(--text-secondary);">Current System Time</div>
+                  <div style="font-size:16px;font-weight:700;" id="live-clock-date">--</div>
+                  <div style="font-size:22px;font-weight:800;font-family:var(--font-mono);color:var(--text-primary);" id="live-clock-time">--:--:--</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- VIEW: PAGE 4 - HISTORICAL ANALYTICS -->
+      <section id="view-analytics" class="content-body view-page" style="display: none;">
+        <div class="analytics-filter-bar">
+          <div style="display:flex;gap:16px;align-items:center;">
+            <div class="filter-group">
+              <label class="form-label" style="margin-bottom:0;" for="analytics-range-select">Data Source:</label>
+              <select id="analytics-range-select" class="select-input">
+                <option value="thingspeak" selected>ThingSpeak Channel 3143605 Feeds</option>
+                <option value="24h">Last 24 Hours</option>
+                <option value="7d">Last 7 Days</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label class="form-label" style="margin-bottom:0;" for="analytics-param-select">Parameter:</label>
+              <select id="analytics-param-select" class="select-input">
+                <option value="all" selected>All Hardware Feeds</option>
+                <option value="temp-hum">Temp & Humidity (DHT11)</option>
+                <option value="ph">Approx pH (GPIO 34)</option>
+                <option value="soil">Soil Moisture (GPIO 35)</option>
+                <option value="mq135">Air Quality ADC (GPIO 32)</option>
+              </select>
+            </div>
+            <button class="btn-primary" id="btn-apply-analytics" style="width:auto;padding:7px 16px;">Refresh Feeds</button>
+          </div>
+          <div>
+            <button class="btn-primary" id="btn-export-analytics-csv" style="width:auto;padding:7px 16px;background:#1F2937;">
+              <i data-lucide="download" style="width:14px;height:14px;"></i>
+              <span>Export CSV</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Planned Sensors Notice Banner -->
+        <div style="margin-bottom:16px;background:#EFF6FF;border:1px solid #BFDBFE;padding:10px 14px;border-radius:var(--radius-sm);font-size:12.5px;color:#1E40AF;display:flex;align-items:center;gap:10px;">
+          <i data-lucide="info" style="width:16px;height:16px;flex-shrink:0;"></i>
+          <span>Displaying verified physical sensor telemetry. Note: EC/TDS and Ultrasonic Water Level are planned sensors and will appear once physical hardware is fitted.</span>
+        </div>
+
+        <!-- 4-Charts Grid for Verified Physical Sensors -->
+        <div class="analytics-charts-grid">
+          <!-- Temperature & Humidity Trend (DHT11, GPIO 4) -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Temperature & Humidity (DHT11 &bull; GPIO 4)</div>
+              <div style="font-size:11.5px;color:var(--text-secondary);">
+                <span style="color:#EF4444;">●</span> Temp (°C) &nbsp; <span style="color:#06B6D4;">●</span> Humidity (%)
+              </div>
+            </div>
+            <div style="height:200px;position:relative;">
+              <canvas id="chart-analytics-temp-hum"></canvas>
+            </div>
+          </div>
+
+          <!-- Approximate pH Trend (GPIO 34) -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Approximate pH (GPIO 34)</div>
+              <span style="font-size:11.5px;color:var(--color-warning);">● Linear Approx (Uncalibrated)</span>
+            </div>
+            <div style="height:200px;position:relative;">
+              <canvas id="chart-analytics-ph"></canvas>
+            </div>
+          </div>
+
+          <!-- Soil Moisture Trend (GPIO 35) -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Soil Moisture (%) (GPIO 35)</div>
+              <span style="font-size:11.5px;color:#EAB308;">● Mapped 4095-0 ADC</span>
+            </div>
+            <div style="height:200px;position:relative;">
+              <canvas id="chart-analytics-soil"></canvas>
+            </div>
+          </div>
+
+          <!-- MQ135 Air Quality Raw ADC Trend (GPIO 32) -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">MQ135 Gas Sensor (GPIO 32)</div>
+              <span style="font-size:11.5px;color:#8B5CF6;">● Raw ADC (0-4095)</span>
+            </div>
+            <div style="height:200px;position:relative;">
+              <canvas id="chart-analytics-mq135"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Key Statistics Bar -->
+        <div class="card" style="margin-top:20px;">
+          <div class="card-header">
+            <div class="card-title">Telemetry Summary (Real Hardware Feeds)</div>
+          </div>
+          <div class="stats-summary-strip">
+            <div class="stat-box">
+              <div class="stat-label">Avg Temperature</div>
+              <div class="stat-value tabular-nums" id="stat-avg-temp">-- °C</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Avg Humidity</div>
+              <div class="stat-value tabular-nums" id="stat-avg-hum">-- %</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Avg Approx pH</div>
+              <div class="stat-value tabular-nums" id="stat-avg-ph">--</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Avg Soil Moisture</div>
+              <div class="stat-value tabular-nums" id="stat-avg-soil">-- %</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Dosing Events</div>
+              <div class="stat-value tabular-nums" style="color:var(--color-critical);" id="stat-dosing-events">Locked (0)</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Cloud Channel</div>
+              <div class="stat-value tabular-nums" id="stat-cloud-channel">3143605</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- VIEW: PAGE 5 - PLANT HEALTH MONITORING & EFFICIENTNET-B0 DIAGNOSTICS -->
+      <section id="view-plant-health" class="content-body view-page" style="display: none;">
+        <!-- Model Header & Control Banner -->
+        <div class="card" style="margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div style="width: 40px; height: 40px; border-radius: 8px; background: #E8F7F0; display: flex; align-items: center; justify-content: center; color: var(--primary-green);">
+                <i data-lucide="cpu" style="width: 22px; height: 22px;"></i>
+              </div>
+              <div>
+                <div style="font-weight: 700; font-size: 15px; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
+                  <span>EfficientNetB0 Plant Pathology Model</span>
+                  <span class="status-pill online" style="font-size: 10.5px; padding: 2px 7px;">Keras 3.13.2</span>
+                  <span class="status-pill" style="background:#EEF2F6; color:#334155; font-size: 10.5px; padding: 2px 7px;">13 Classes</span>
+                </div>
+                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">
+                  Trained on Lettuce & Basil • Test Accuracy: <b style="color:var(--text-primary);">68.60%</b> • Weighted F1: <b style="color:var(--text-primary);">68.79%</b> (414 Benchmark Samples)
+                </div>
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <select id="plant-crop-select" class="select-input" style="padding: 6px 12px; font-size: 12.5px; width: 140px;">
+                <option value="auto" selected>Auto Crop Detect</option>
+                <option value="lettuce">Lettuce Focus</option>
+                <option value="basil">Basil Focus</option>
+              </select>
+
+              <button id="btn-open-model-metrics" class="btn-secondary" style="font-size: 12px; padding: 6px 12px; display: flex; align-items: center; gap: 6px;">
+                <i data-lucide="bar-chart-2" style="width: 14px; height: 14px;"></i>
+                <span>Model Metrics & Specs</span>
+              </button>
+
+              <label for="plant-image-upload-input" class="btn-primary" style="width: auto; padding: 6px 14px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                <i data-lucide="upload" style="width: 14px; height: 14px;"></i>
+                <span>Upload Leaf Image</span>
+              </label>
+              <input type="file" id="plant-image-upload-input" accept="image/*" style="display: none;" />
+            </div>
+          </div>
+
+          <!-- Benchmark Test Sample Quick Picker -->
+          <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid #E2E8F0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <span style="font-size: 11.5px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Test Benchmark Samples:</span>
+            <div id="benchmark-samples-chips" style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <!-- Chips dynamically loaded from test_predictions.csv -->
+              <button class="status-pill benchmark-sample-chip" data-sample-id="0" style="cursor:pointer; border:1px solid #CBD5E1; background:#fff; font-size:11px; padding:3px 8px;">
+                🥬 Lettuce Bacterial (99.8%)
+              </button>
+              <button class="status-pill benchmark-sample-chip" data-sample-id="1" style="cursor:pointer; border:1px solid #CBD5E1; background:#fff; font-size:11px; padding:3px 8px;">
+                🥬 Lettuce Powdery Mildew (100%)
+              </button>
+              <button class="status-pill benchmark-sample-chip" data-sample-id="4" style="cursor:pointer; border:1px solid #CBD5E1; background:#fff; font-size:11px; padding:3px 8px;">
+                🥬 Lettuce Healthy (99.8%)
+              </button>
+              <button class="status-pill benchmark-sample-chip" data-sample-id="2" style="cursor:pointer; border:1px solid #CBD5E1; background:#fff; font-size:11px; padding:3px 8px;">
+                🥬 Lettuce Wilt & Blight (95.2%)
+              </button>
+              <button class="status-pill benchmark-sample-chip" data-sample-id="3" style="cursor:pointer; border:1px solid #CBD5E1; background:#fff; font-size:11px; padding:3px 8px;">
+                🌿 Basil Healthy (97.0%)
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="plant-health-layout">
+          <!-- Left: Image Preview & Actions -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Foliage Observation Image</div>
+              <span id="ph-engine-tag" class="status-pill" style="font-size: 10.5px; padding: 2px 7px; background:#F1F5F9; color:#475569;">
+                EfficientNetB0 (224x224 RGB)
+              </span>
+            </div>
+            <div class="plant-image-frame" style="position: relative; overflow: hidden; border-radius: var(--radius-sm); border: 1px solid #E2E8F0; background: #000; min-height: 280px; display: flex; align-items: center; justify-content: center;">
+              <img id="plant-main-photo" src="/static/images/lettuce_main.jpg" alt="Hydroponic Crop Observation" style="max-height: 340px; width: 100%; object-fit: contain;" />
+              <div id="ph-image-badge" style="position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.7); color: #fff; padding: 4px 10px; border-radius: 4px; font-size: 11px;">
+                <span id="ph-observed-crop-tag">Lettuce</span> • <span id="ph-captured-time">Recent Observation</span>
+              </div>
+            </div>
+
+            <!-- Diagnostics Action Toolbar -->
+            <div style="margin-top: 14px; display: flex; justify-content: space-between; align-items: center;">
+              <div style="font-size: 12px; color: var(--text-secondary);">
+                <span>Camera Hardware: </span>
+                <span class="status-pill offline" style="padding:1px 6px;font-size:10.5px;">Planned Hardware - Not Fitted</span>
+              </div>
+              <button id="btn-reanalyze-leaf" class="btn-secondary" style="font-size: 12px; padding: 5px 12px;">
+                <i data-lucide="refresh-cw" style="width: 12px; height: 12px;"></i>
+                <span>Re-Analyze Leaf</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Right: Diagnostic Classification Results -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Pathology Diagnosis & Classification</div>
+              <span id="ph-diag-severity-pill" class="status-pill success" style="font-size: 11px; padding: 2px 8px;">
+                NORMAL
+              </span>
+            </div>
+
+            <div class="plant-status-banner" id="plant-health-banner" style="margin-bottom: 14px;">
+              <i data-lucide="check-circle" id="plant-health-icon" style="width: 20px; height: 20px;"></i>
+              <div style="display: flex; flex-direction: column;">
+                <span id="plant-health-tag" style="font-weight: 700; font-size: 14px;">Lettuce - Healthy Foliage</span>
+                <span id="ph-confidence-line" style="font-size: 11.5px; opacity: 0.9;">Confidence: 95.5% • Softmax Probability Score</span>
+              </div>
+            </div>
+
+            <!-- Confidence Bar -->
+            <div style="margin-bottom: 16px;">
+              <div style="display: flex; justify-content: space-between; font-size: 11.5px; margin-bottom: 4px; color: var(--text-secondary);">
+                <span>Classification Confidence</span>
+                <span id="ph-confidence-pct" class="tabular-nums" style="font-weight: 600; color: var(--text-primary);">95.5%</span>
+              </div>
+              <div style="width: 100%; height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
+                <div id="ph-confidence-bar" style="width: 95.5%; height: 100%; background: var(--primary-green); border-radius: 4px; transition: width 0.3s ease;"></div>
+              </div>
+            </div>
+
+            <!-- Differential Top Candidates -->
+            <div style="margin-bottom: 16px;">
+              <div style="font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px;">Top Differential Diagnoses:</div>
+              <div id="ph-top-candidates-container" style="display: flex; flex-direction: column; gap: 6px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; background:#F8FAFC; padding:6px 10px; border-radius:4px; font-size:12px;">
+                  <span style="font-weight:500;">Lettuce - Healthy Foliage</span>
+                  <span class="tabular-nums" style="font-weight:600; color:var(--primary-green);">95.5%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Clinical Pathology & Treatment Protocol -->
+            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: var(--radius-sm); padding: 12px; margin-bottom: 14px;">
+              <div style="font-size: 11.5px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 4px;">Pathology Notes:</div>
+              <div id="ph-pathology-description" style="font-size: 12.5px; color: var(--text-primary); line-height: 1.4; margin-bottom: 8px;">
+                Crisp, vibrant green leaves with optimal turgidity and no chlorotic or necrotic lesions.
+              </div>
+              <div style="font-size: 11.5px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 4px;">Agronomic Hydroponic Protocol:</div>
+              <div id="ph-treatment-protocol" style="font-size: 12px; color: #0F766E; line-height: 1.4;">
+                Maintain pH 5.6-6.2, EC 1.2-1.6 mS/cm, water temperature 18-22°C for continuous vegetative growth.
+              </div>
+            </div>
+
+            <!-- Hardware Correlation Strip -->
+            <div style="background: #F1F5F9; padding: 10px 14px; border-radius: var(--radius-sm);">
+              <div style="font-size: 11.5px; font-weight: 600; margin-bottom: 4px; color: var(--text-secondary);">Real Sensor Feeds At Observation:</div>
+              <div style="display: flex; justify-content: space-between; font-size: 12px;">
+                <span>Water Temp: <b id="ph-corr-temp">24.6 °C</b></span>
+                <span>Humidity: <b id="ph-corr-hum">68.0 %</b></span>
+                <span>pH (GPIO 34): <b id="ph-corr-ph">6.20</b></span>
+                <span>Green Area: <b id="ph-green-area">88%</b></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Plant History Timeline Archive -->
+        <div class="card" style="margin-top: 16px;">
+          <div class="card-header">
+            <div class="card-title">Plant History Timeline & Observation Archive</div>
+            <span style="font-size: 12px; color: var(--text-secondary);">Click any observation thumbnail to inspect diagnostic history</span>
+          </div>
+          <div class="timeline-scroller" id="plant-timeline-container">
+            <!-- Timeline Cards dynamically populated -->
+          </div>
+        </div>
+
+        <!-- EfficientNetB0 Model Metrics & Specs Modal -->
+        <div id="model-metrics-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
+          <div style="background: #fff; border-radius: 8px; width: 92%; max-width: 820px; max-height: 90vh; overflow-y: auto; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid #E2E8F0; padding-bottom: 12px;">
+              <div>
+                <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: var(--text-primary);">
+                  EfficientNetB0 Plant Pathology Model Architecture & Per-Class Metrics
+                </h3>
+                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">
+                  Model File: <code>model/lettuce_basil_efficientnetb0_13class.keras</code> (32.1 MB)
+                </div>
+              </div>
+              <button id="btn-close-metrics-modal" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #64748B;">✕</button>
+            </div>
+
+            <!-- Evaluation Summary Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px;">
+              <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; padding: 12px;">
+                <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase;">Test Accuracy</div>
+                <div style="font-size: 22px; font-weight: 700; color: var(--primary-green); margin-top: 4px;">68.60%</div>
+                <div style="font-size: 11px; color: var(--text-secondary);">284 / 414 test set samples</div>
+              </div>
+              <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; padding: 12px;">
+                <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase;">Weighted F1-Score</div>
+                <div style="font-size: 22px; font-weight: 700; color: #0284C7; margin-top: 4px;">68.79%</div>
+                <div style="font-size: 11px; color: var(--text-secondary);">Support-weighted harmonic mean</div>
+              </div>
+              <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; padding: 12px;">
+                <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase;">Macro F1-Score</div>
+                <div style="font-size: 22px; font-weight: 700; color: #6366F1; margin-top: 4px;">45.29%</div>
+                <div style="font-size: 11px; color: var(--text-secondary);">Unweighted across 13 classes</div>
+              </div>
+              <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; padding: 12px;">
+                <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase;">Input Resolution</div>
+                <div style="font-size: 22px; font-weight: 700; color: #334155; margin-top: 4px;">224 × 224</div>
+                <div style="font-size: 11px; color: var(--text-secondary);">3-Channel RGB Softmax</div>
+              </div>
+            </div>
+
+            <!-- 13 Classes Per-Class Metrics Table -->
+            <div style="margin-bottom: 20px;">
+              <div style="font-weight: 600; font-size: 13.5px; margin-bottom: 8px; color: var(--text-primary);">
+                Per-Class Performance Metrics (per_class_metrics.csv)
+              </div>
+              <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                  <thead>
+                    <tr style="background: #F1F5F9; text-align: left; border-bottom: 2px solid #CBD5E1;">
+                      <th style="padding: 8px 10px;">Class ID</th>
+                      <th style="padding: 8px 10px;">Pathology Class</th>
+                      <th style="padding: 8px 10px;">Crop</th>
+                      <th style="padding: 8px 10px;">Precision</th>
+                      <th style="padding: 8px 10px;">Recall</th>
+                      <th style="padding: 8px 10px;">F1-Score</th>
+                      <th style="padding: 8px 10px;">Support</th>
+                    </tr>
+                  </thead>
+                  <tbody id="model-metrics-tbody">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Local CLI Execution Instructions -->
+            <div style="background: #F8FAFC; border: 1px solid #CBD5E1; border-radius: 6px; padding: 14px;">
+              <div style="font-size: 12px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">
+                Standalone Local Python Model Inference
+              </div>
+              <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px;">
+                To run direct inference on any local leaf image using Python & TensorFlow/Keras:
+              </div>
+              <pre style="background: #1E293B; color: #38BDF8; padding: 10px 14px; border-radius: 4px; font-size: 12px; overflow-x: auto; margin: 0;">python predict.py &lt;path_to_leaf_image.jpg&gt;</pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- VIEW: PAGE 6 - ALERTS & EVENTS -->
+      <section id="view-alerts" class="content-body view-page" style="display: none;">
+        <div class="alerts-filter-bar">
+          <div style="display:flex;gap:12px;align-items:center;">
+            <select id="alerts-severity-filter" class="select-input">
+              <option value="all">All Events</option>
+              <option value="warning">Warnings</option>
+              <option value="critical">Critical</option>
+              <option value="info">Info</option>
+            </select>
+            <select id="alerts-timeframe-filter" class="select-input">
+              <option value="7d" selected>Last 7 Days</option>
+              <option value="24h">Last 24 Hours</option>
+              <option value="30d">Last 30 Days</option>
+            </select>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <div class="input-wrapper" style="width:240px;">
+              <input type="text" id="alerts-search-input" class="form-input" placeholder="Search events..." style="padding:7px 12px;font-size:13px;" />
+            </div>
+          </div>
+        </div>
+
+        <div class="alerts-feed-list" id="alerts-feed-container">
+          <!-- Alert cards populated from SQLite alerts table -->
+        </div>
+      </section>
+
+
+      <!-- VIEW: PAGE 7 - AUTOMATION / CONFIGURATION -->
+      <section id="view-automation" class="content-body view-page" style="display: none;">
+        <form id="automation-config-form">
+          <div class="config-grid">
+            <!-- pH Control Settings -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">pH Control (Safety Locked)</div>
+                <span class="status-pill warning">Calibration Needed</span>
+              </div>
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">
+                Note: Automated chemical pump actuation is disabled until 2-point buffer calibration is completed on GPIO 34.
+              </div>
+              <div class="config-row">
+                <span class="config-label">Lower Limit</span>
+                <input type="number" step="0.1" class="config-input-sm" id="cfg-ph-lower" value="5.8" required />
+              </div>
+              <div class="config-row">
+                <span class="config-label">Upper Limit</span>
+                <input type="number" step="0.1" class="config-input-sm" id="cfg-ph-upper" value="6.5" required />
+              </div>
+              <div class="config-row">
+                <span class="config-label">Dose Pulse Duration</span>
+                <div style="display:flex;align-items:center;gap:4px;">
+                  <input type="number" step="0.5" class="config-input-sm" id="cfg-ph-pulse" value="2.0" required />
+                  <span style="font-size:12px;color:var(--text-secondary);">sec</span>
+                </div>
+              </div>
+              <div class="config-row">
+                <span class="config-label">Mixing Delay</span>
+                <div style="display:flex;align-items:center;gap:4px;">
+                  <input type="number" step="5" class="config-input-sm" id="cfg-ph-mixing" value="60" required />
+                  <span style="font-size:12px;color:var(--text-secondary);">sec</span>
+                </div>
+              </div>
+              <div class="config-row">
+                <span class="config-label">Maximum Pulses</span>
+                <input type="number" step="1" class="config-input-sm" id="cfg-ph-max-pulses" value="3" required />
+              </div>
+            </div>
+
+            <!-- EC / TDS Control Settings (Planned) -->
+            <div class="card" style="background:#F9FAFB;">
+              <div class="card-header">
+                <div class="card-title">EC/TDS Control (Planned Hardware)</div>
+                <span class="status-pill offline">Not Configured</span>
+              </div>
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">
+                EC sensor not connected to ESP32 in current firmware build.
+              </div>
+              <div class="config-row">
+                <span class="config-label">Target Lower</span>
+                <div style="display:flex;align-items:center;gap:4px;">
+                  <input type="number" step="0.1" class="config-input-sm" id="cfg-ec-lower" value="1.2" disabled />
+                  <span style="font-size:12px;color:var(--text-secondary);">mS/cm</span>
+                </div>
+              </div>
+              <div class="config-row">
+                <span class="config-label">Target Upper</span>
+                <div style="display:flex;align-items:center;gap:4px;">
+                  <input type="number" step="0.1" class="config-input-sm" id="cfg-ec-upper" value="1.8" disabled />
+                  <span style="font-size:12px;color:var(--text-secondary);">mS/cm</span>
+                </div>
+              </div>
+              <div class="config-row">
+                <span class="config-label">Dose Pulse Duration</span>
+                <div style="display:flex;align-items:center;gap:4px;">
+                  <input type="number" step="0.5" class="config-input-sm" id="cfg-ec-pulse" value="3.0" disabled />
+                  <span style="font-size:12px;color:var(--text-secondary);">sec</span>
+                </div>
+              </div>
+              <div class="config-row">
+                <span class="config-label">Mixing Delay</span>
+                <div style="display:flex;align-items:center;gap:4px;">
+                  <input type="number" step="5" class="config-input-sm" id="cfg-ec-mixing" value="60" disabled />
+                  <span style="font-size:12px;color:var(--text-secondary);">sec</span>
+                </div>
+              </div>
+              <div class="config-row">
+                <span class="config-label">Maximum Pulses</span>
+                <input type="number" step="1" class="config-input-sm" id="cfg-ec-max-pulses" value="3" disabled />
+              </div>
+            </div>
+
+            <!-- Pump Relay Configuration -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Relay Configuration</div>
+                <span class="status-pill online">Active-HIGH</span>
+              </div>
+              <div class="config-row">
+                <span class="config-label">Relay D1 (GPIO 25)</span>
+                <span style="font-weight:600;font-size:13px;">Water Circulation Pump (Commanded ON)</span>
+              </div>
+              <div class="config-row">
+                <span class="config-label">Relay D2 (GPIO 26)</span>
+                <span style="font-weight:600;font-size:13px;color:var(--text-muted);">Reserved (OFF)</span>
+              </div>
+              <div class="config-row">
+                <span class="config-label">Relay D3 (GPIO 27)</span>
+                <span style="font-weight:600;font-size:13px;color:var(--text-muted);">Reserved (OFF)</span>
+              </div>
+              <div class="config-row">
+                <span class="config-label">Trigger Polarity</span>
+                <span style="font-family:var(--font-mono);font-size:12px;">RELAY_ACTIVE_LOW = false</span>
+              </div>
+            </div>
+
+            <!-- Grow Light Schedule (Planned / Optional Control) -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Grow Light Schedule</div>
+                <span class="status-pill info">Optional</span>
+              </div>
+              <div class="config-row">
+                <span class="config-label">ON Time</span>
+                <input type="time" class="config-input-sm" id="cfg-light-on" value="06:00" style="width:110px;" />
+              </div>
+              <div class="config-row">
+                <span class="config-label">OFF Time</span>
+                <input type="time" class="config-input-sm" id="cfg-light-off" value="22:00" style="width:110px;" />
+              </div>
+              <div class="config-row">
+                <span class="config-label">Photoperiod</span>
+                <span style="font-weight:600;" id="cfg-photoperiod-val">16 hours</span>
+              </div>
+            </div>
+
+            <!-- Operating Mode & Safety Interlock -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">System Safety & Mode</div>
+              </div>
+              <div class="config-row">
+                <span class="config-label">Operating Mode</span>
+                <select id="cfg-automation-mode" class="select-input">
+                  <option value="real" selected>Real Hardware Mode (ThingSpeak Ingestion)</option>
+                  <option value="manual">Manual Supervised Mode</option>
+                </select>
+              </div>
+              <div class="config-row">
+                <span class="config-label">Dry-Run Protection</span>
+                <span class="status-pill success" style="padding:1px 6px;font-size:11px;">Enabled</span>
+              </div>
+              <div class="config-row">
+                <span class="config-label">Chemical Interlock</span>
+                <span class="status-pill critical" style="padding:1px 6px;font-size:11px;">Active (Safety Locked)</span>
+              </div>
+              <div class="config-row">
+                <span class="config-label">Reservoir Safe Level</span>
+                <div style="display:flex;align-items:center;gap:4px;">
+                  <input type="number" class="config-input-sm" id="cfg-water-safe" value="30" />
+                  <span style="font-size:12px;color:var(--text-secondary);">%</span>
+                </div>
+              </div>
+              <div class="config-row">
+                <span class="config-label">Reservoir Critical Level</span>
+                <div style="display:flex;align-items:center;gap:4px;">
+                  <input type="number" class="config-input-sm" id="cfg-water-critical" value="20" />
+                  <span style="font-size:12px;color:var(--text-secondary);">%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;justify-content:flex-end;">
+            <button type="submit" class="btn-primary" id="btn-save-config" style="width:auto;padding:12px 28px;">
+              <i data-lucide="save" style="width:16px;height:16px;"></i>
+              <span>Save Configuration</span>
+            </button>
+          </div>
+        </form>
+      </section>
+
+
+      <!-- VIEW: PAGE 8 - DEVICE & CONNECTIVITY -->
+      <section id="view-device" class="content-body view-page" style="display: none;">
+        <div class="device-cards-grid">
+          <!-- Device Status (matching screenshot) -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Device & Telemetry Status</div>
+            </div>
+            <div class="system-health-list">
+              <div class="health-item">
+                <span class="health-item-label">ESP32 Node</span>
+                <span class="health-status-tag" style="color:var(--color-success);"><span class="status-indicator-dot"></span> Operational</span>
+              </div>
+              <div class="health-item">
+                <span class="health-item-label">Device ID</span>
+                <span style="font-family:var(--font-mono);font-weight:600;" id="dev-id-val">hydroponic-esp32-01</span>
+              </div>
+              <div class="health-item">
+                <span class="health-item-label">Wi-Fi SSID</span>
+                <span style="font-family:var(--font-mono);font-weight:600;" id="dev-wifi-ssid">Excitel_kabir2.4G</span>
+              </div>
+              <div class="health-item">
+                <span class="health-item-label">ThingSpeak Status</span>
+                <span class="health-status-tag" style="color:var(--color-success);"><span class="status-indicator-dot"></span> Connected (Channel 3143605)</span>
+              </div>
+              <div class="health-item">
+                <span class="health-item-label">OLED Display (0x3C)</span>
+                <span class="health-status-tag" style="color:var(--color-success);"><span class="status-indicator-dot"></span> Active (128x64)</span>
+              </div>
+              <div class="health-item">
+                <span class="health-item-label">Pump D1 (GPIO 25)</span>
+                <span class="health-status-tag" style="color:var(--color-info);"><span class="status-indicator-dot"></span> Active-HIGH (Flow check pending)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cloud Synchronization Card -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">ThingSpeak Cloud Synchronization</div>
+              <button class="btn-primary" id="btn-sync-now" style="width:auto;padding:6px 14px;font-size:12px;">
+                <i data-lucide="refresh-cw" style="width:14px;height:14px;"></i>
+                <span>Sync Now</span>
+              </button>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+              <div style="background:#F9FAFB;padding:14px;border-radius:var(--radius-sm);text-align:center;">
+                <div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;">Latest Feed Entry</div>
+                <div style="font-size:22px;font-weight:700;" class="tabular-nums" id="dev-cloud-records">1815</div>
+              </div>
+              <div style="background:#F9FAFB;padding:14px;border-radius:var(--radius-sm);text-align:center;">
+                <div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;">Local Synced Feeds</div>
+                <div style="font-size:22px;font-weight:700;" class="tabular-nums" id="dev-local-records">--</div>
+              </div>
+            </div>
+            <div class="system-health-list">
+              <div class="health-item">
+                <span class="health-item-label">Channel Number</span>
+                <span style="font-family:var(--font-mono);font-weight:600;">3143605</span>
+              </div>
+              <div class="health-item">
+                <span class="health-item-label">Last Synchronization</span>
+                <span class="tabular-nums" id="dev-last-sync-time">--</span>
+              </div>
+              <div class="health-item">
+                <span class="health-item-label">Sync Status</span>
+                <span class="status-pill success" id="dev-sync-badge">Up to date</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Verified ESP32 Hardware Pin Map Table -->
+        <div class="card" style="margin-bottom:24px;">
+          <div class="card-header">
+            <div class="card-title">Verified ESP32 Hardware Pinout & Wiring Map</div>
+            <span class="status-pill success">Firmware v1.1.0 Aligned</span>
+          </div>
+          <div class="logs-table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ESP32 Pin</th>
+                  <th>Component / Hardware</th>
+                  <th>Interface Type</th>
+                  <th>Function / Metric</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="hardware-pinout-body">
+                <tr>
+                  <td><b>GPIO 4</b></td>
+                  <td>DHT11 Sensor</td>
+                  <td>Digital (One-Wire)</td>
+                  <td>Air Temperature (°C) & Relative Humidity (%)</td>
+                  <td><span class="status-pill success">Operational</span></td>
+                </tr>
+                <tr>
+                  <td><b>GPIO 34</b></td>
+                  <td>Analog pH Sensor</td>
+                  <td>Analog ADC (3.3V / 4095)</td>
+                  <td>pH = 7.0 + (2.5 - V)*3.0 (Approximate)</td>
+                  <td><span class="status-pill warning">Approximate (Uncalibrated)</span></td>
+                </tr>
+                <tr>
+                  <td><b>GPIO 35</b></td>
+                  <td>Soil Moisture Sensor</td>
+                  <td>Analog ADC</td>
+                  <td>Capacitive / Resistive Soil Moisture (0-100%)</td>
+                  <td><span class="status-pill success">Operational</span></td>
+                </tr>
+                <tr>
+                  <td><b>GPIO 32</b></td>
+                  <td>MQ135 Gas Sensor</td>
+                  <td>Analog ADC</td>
+                  <td>Raw Air Quality ADC (0-4095)</td>
+                  <td><span class="status-pill success">Operational</span></td>
+                </tr>
+                <tr>
+                  <td><b>GPIO 21 / 22</b></td>
+                  <td>SSD1306 OLED (128x64)</td>
+                  <td>I2C (0x3C, SDA:21, SCL:22)</td>
+                  <td>2-Page Local Hardware Telemetry Display</td>
+                  <td><span class="status-pill success">Operational</span></td>
+                </tr>
+                <tr>
+                  <td><b>GPIO 25</b></td>
+                  <td>Relay D1</td>
+                  <td>Digital Output</td>
+                  <td>Water Circulation Pump (Commanded ON)</td>
+                  <td><span class="status-pill info">Flow Check Pending</span></td>
+                </tr>
+                <tr>
+                  <td><b>GPIO 26</b></td>
+                  <td>Relay D2</td>
+                  <td>Digital Output</td>
+                  <td>Reserved Channel (Commanded OFF)</td>
+                  <td><span class="status-pill offline">Standby</span></td>
+                </tr>
+                <tr>
+                  <td><b>GPIO 27</b></td>
+                  <td>Relay D3</td>
+                  <td>Digital Output</td>
+                  <td>Reserved Channel (Commanded OFF)</td>
+                  <td><span class="status-pill offline">Standby</span></td>
+                </tr>
+                <tr style="opacity:0.6;">
+                  <td><i>Unassigned</i></td>
+                  <td>EC / TDS Sensor</td>
+                  <td>Planned Hardware</td>
+                  <td>Nutrient Electrical Conductivity</td>
+                  <td><span class="status-pill offline">Not Configured</span></td>
+                </tr>
+                <tr style="opacity:0.6;">
+                  <td><i>Unassigned</i></td>
+                  <td>Ultrasonic Water Level</td>
+                  <td>Planned Hardware</td>
+                  <td>Reservoir Level Depth Sensing</td>
+                  <td><span class="status-pill offline">Not Configured</span></td>
+                </tr>
+                <tr style="opacity:0.6;">
+                  <td><i>Unassigned</i></td>
+                  <td>Camera Module</td>
+                  <td>Planned Hardware</td>
+                  <td>Crop Visual Health Feed</td>
+                  <td><span class="status-pill offline">Unavailable</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Operating Mode Control Card -->
+        <div class="card" style="margin-bottom:24px;">
+          <div class="card-header">
+            <div class="card-title">System Operating Mode</div>
+            <span id="dev-active-mode-tag" class="mode-badge real">REAL HARDWARE</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;">
+            <div>
+              <div style="font-weight:600;font-size:14px;color:var(--text-primary);margin-bottom:4px;" id="mode-desc-title">Real Hardware Mode Active</div>
+              <div style="font-size:13px;color:var(--text-secondary);max-width:600px;" id="mode-desc-text">
+                Live sensor measurements reflect actual physical hardware readings from ThingSpeak Channel 3143605 and the verified ESP32 firmware.
+              </div>
+            </div>
+            <div style="display:flex;gap:10px;">
+              <button class="btn-primary" id="btn-toggle-mode" style="width:auto;padding:8px 16px;background:#1F2937;">
+                <i data-lucide="refresh-cw" style="width:14px;height:14px;"></i>
+                <span id="btn-toggle-mode-text">Switch to Demo Mode</span>
+              </button>
+              <button class="btn-primary" id="btn-ping-esp32" style="width:auto;padding:8px 16px;background:var(--primary-green);">
+                <i data-lucide="zap" style="width:14px;height:14px;"></i>
+                <span>Pull Latest Feeds (Ping)</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Offline Mode Callout (matching screenshot) -->
+        <div class="offline-mode-callout">
+          <div style="display:flex;align-items:center;gap:16px;">
+            <div style="width:40px;height:40px;border-radius:50%;background:#FEE2E2;color:#B91C1C;display:flex;align-items:center;justify-content:center;">
+              <i data-lucide="shield-alert" style="width:20px;height:20px;"></i>
+            </div>
+            <div>
+              <div style="font-weight:700;font-size:14.5px;color:#92400E;margin-bottom:2px;">Hardware Safety Interlocks</div>
+              <div style="font-size:13px;color:#B45309;">Automated chemical dosing is locked in hardware mode. Relay D1 pump commands must be confirmed with physical dry-run protection.</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:14px;">
+            <div style="text-align:right;">
+              <div style="font-size:11.5px;color:var(--text-secondary);">Relay Polarity:</div>
+              <div style="font-weight:700;font-size:14px;font-family:var(--font-mono);">Active-HIGH</div>
+            </div>
+          </div>
+        </div>
+      </section>
+              <div style="font-size:11.5px;color:var(--text-secondary);">Buffered Records:</div>
+              <div style="font-weight:700;font-size:16px;" id="offline-pending-badge">0</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- VIEW: PAGE 9 - SYSTEM LOGS -->
+      <section id="view-logs" class="content-body view-page" style="display: none;">
+        <div class="analytics-filter-bar">
+          <div style="display:flex;gap:12px;align-items:center;">
+            <select id="logs-module-filter" class="select-input">
+              <option value="all">All Modules</option>
+              <option value="pH">pH</option>
+              <option value="Cloud">Cloud</option>
+              <option value="Sensor">Sensor</option>
+              <option value="Water">Water</option>
+              <option value="Disconnect">Disconnect</option>
+              <option value="Nutrient">Nutrient</option>
+              <option value="Light">Light</option>
+            </select>
+            <div class="input-wrapper" style="width:260px;">
+              <input type="text" id="logs-search-input" class="form-input" placeholder="Search logs..." style="padding:7px 12px;font-size:13px;" />
+            </div>
+          </div>
+          <div>
+            <button class="btn-primary" id="btn-export-logs-csv" style="width:auto;padding:7px 16px;background:#1F2937;">
+              <i data-lucide="download" style="width:14px;height:14px;"></i>
+              <span>Export CSV</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="logs-table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Module</th>
+                <th>Event</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="logs-table-body">
+              <!-- Dynamically populated from SQLite system_logs -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;">
+          <div style="font-size:12.5px;color:var(--text-secondary);" id="logs-pagination-summary">
+            Showing logs
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-primary" id="logs-prev-btn" style="width:auto;padding:6px 14px;background:#E5E7EB;color:var(--text-primary);font-size:12px;" disabled>Previous</button>
+            <button class="btn-primary" id="logs-next-btn" style="width:auto;padding:6px 14px;background:#E5E7EB;color:var(--text-primary);font-size:12px;">Next</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Master JavaScript Application -->
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
